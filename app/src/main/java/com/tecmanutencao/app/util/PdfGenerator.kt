@@ -1,6 +1,8 @@
 package com.tecmanutencao.app.util
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -9,6 +11,7 @@ import android.graphics.pdf.PdfDocument
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
+import com.tecmanutencao.app.R
 import com.tecmanutencao.app.domain.model.Cliente
 import com.tecmanutencao.app.domain.model.EmpresaConfig
 import com.tecmanutencao.app.domain.model.Equipamento
@@ -35,9 +38,11 @@ object PdfGenerator {
         val page = document.startPage(pageInfo)
         val canvas = page.canvas
 
+        val logoBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.logo_empresa)
+
         var y = MARGIN
 
-        y = drawHeader(canvas, empresaConfig, orcamento, y)
+        y = drawHeader(canvas, empresaConfig, orcamento, y, logoBitmap)
         y = drawSectionTitle(canvas, "DADOS DO CLIENTE", y)
         y = drawClientData(canvas, cliente, y)
         y = drawSectionTitle(canvas, "EQUIPAMENTO", y)
@@ -61,43 +66,58 @@ object PdfGenerator {
         return file
     }
 
-    private fun drawHeader(canvas: Canvas, config: EmpresaConfig?, orcamento: Orcamento, startY: Float): Float {
+    private fun drawHeader(canvas: Canvas, config: EmpresaConfig?, orcamento: Orcamento, startY: Float, logo: Bitmap?): Float {
         val y = startY
+        val headerHeight = 100f
 
         val headerPaint = Paint().apply {
-            color = Color.parseColor("#1565C0")
+            color = Color.parseColor("#3C50A0")
             style = Paint.Style.FILL
         }
-        canvas.drawRect(0f, y - MARGIN, PAGE_WIDTH.toFloat(), y + 95f, headerPaint)
+        canvas.drawRect(0f, y - MARGIN, PAGE_WIDTH.toFloat(), y + headerHeight, headerPaint)
+
+        // Draw logo
+        var textStartX = MARGIN
+        if (logo != null) {
+            val logoSize = 70f
+            val logoScale = logoSize / maxOf(logo.width.toFloat(), logo.height.toFloat())
+            val logoW = (logo.width * logoScale).toInt()
+            val logoH = (logo.height * logoScale).toInt()
+            val logoX = MARGIN
+            val logoY = y - MARGIN + (headerHeight - logoSize) / 2f
+            val scaledLogo = Bitmap.createScaledBitmap(logo, logoW, logoH, true)
+            canvas.drawBitmap(scaledLogo, logoX, logoY, null)
+            textStartX = logoX + logoW + 15f
+        }
 
         val titlePaint = Paint().apply {
             color = Color.WHITE
-            textSize = 22f
+            textSize = 20f
             typeface = Typeface.DEFAULT_BOLD
             isAntiAlias = true
         }
 
         val title = config?.nomeEmpresa?.ifEmpty { "Tec Manutenção" } ?: "Tec Manutenção"
-        canvas.drawText(title, MARGIN, y + 10f, titlePaint)
+        canvas.drawText(title, textStartX, y + 8f, titlePaint)
 
         val infoPaint = Paint().apply {
             color = Color.WHITE
-            textSize = 10f
+            textSize = 9f
             isAntiAlias = true
         }
 
-        var infoY = y + 28f
+        var infoY = y + 24f
         if (config != null) {
-            if (config.cnpj.isNotEmpty()) { canvas.drawText("CNPJ: ${config.cnpj}", MARGIN, infoY, infoPaint); infoY += 13f }
-            if (config.telefone.isNotEmpty()) { canvas.drawText("Tel: ${config.telefone}", MARGIN, infoY, infoPaint); infoY += 13f }
-            if (config.whatsapp.isNotEmpty()) { canvas.drawText("WhatsApp: ${config.whatsapp}", MARGIN, infoY, infoPaint); infoY += 13f }
-            if (config.email.isNotEmpty()) { canvas.drawText("E-mail: ${config.email}", MARGIN, infoY, infoPaint); infoY += 13f }
+            if (config.cnpj.isNotEmpty()) { canvas.drawText("CNPJ: ${config.cnpj}", textStartX, infoY, infoPaint); infoY += 12f }
+            if (config.telefone.isNotEmpty()) { canvas.drawText("Tel: ${config.telefone}", textStartX, infoY, infoPaint); infoY += 12f }
+            if (config.whatsapp.isNotEmpty()) { canvas.drawText("WhatsApp: ${config.whatsapp}", textStartX, infoY, infoPaint); infoY += 12f }
+            if (config.email.isNotEmpty()) { canvas.drawText("E-mail: ${config.email}", textStartX, infoY, infoPaint); infoY += 12f }
             if (config.endereco.isNotEmpty()) {
-                canvas.drawText("${config.endereco}, ${config.cidade} - ${config.estado}", MARGIN, infoY, infoPaint)
+                canvas.drawText("${config.endereco}, ${config.cidade} - ${config.estado}", textStartX, infoY, infoPaint)
             }
         } else {
-            infoY += 13f
-            canvas.drawText("Sistema de Orçamentos", MARGIN, infoY, infoPaint)
+            infoY += 12f
+            canvas.drawText("Sistema de Orçamentos", textStartX, infoY, infoPaint)
         }
 
         val orcInfoPaint = Paint().apply {
@@ -364,7 +384,7 @@ object PdfGenerator {
 
     private fun drawFooter(canvas: Canvas, config: EmpresaConfig?) {
         val footerPaint = Paint().apply {
-            color = Color.parseColor("#1565C0")
+            color = Color.parseColor("#3C50A0")
             style = Paint.Style.FILL
         }
         canvas.drawRect(0f, PAGE_HEIGHT - 45f, PAGE_WIDTH.toFloat(), PAGE_HEIGHT.toFloat(), footerPaint)

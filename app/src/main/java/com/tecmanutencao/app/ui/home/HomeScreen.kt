@@ -28,6 +28,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -57,13 +59,29 @@ fun HomeScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Column {
-                        Text("Tec Manutenção", fontWeight = FontWeight.Bold)
-                        Text(
-                            "Assistência Técnica",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-                        )
+                    androidx.compose.foundation.layout.Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        androidx.compose.foundation.layout.Box(
+                            modifier = Modifier
+                                .height(40.dp)
+                                .padding(end = 12.dp)
+                        ) {
+                            androidx.compose.foundation.Image(
+                                painter = painterResource(id = com.tecmanutencao.app.R.drawable.logo_empresa),
+                                contentDescription = "Logo",
+                                modifier = Modifier.fillMaxHeight(),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                        Column {
+                            Text("Tec Manutenção", fontWeight = FontWeight.Bold)
+                            Text(
+                                "Assistência Técnica",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
