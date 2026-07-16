@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -42,11 +45,10 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build Debug APK
+        shell: bash
         run: |
-          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee gradle.log
-          if [ $? -ne 0 ]; then
-            echo "BUILD_FAILED=true" >> $GITHUB_ENV
-          fi
+          set -o pipefail
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee gradle.log || echo "BUILD_FAILED=true" >> $GITHUB_ENV
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
 
@@ -57,9 +59,19 @@ jobs:
           name: build-log
           path: gradle.log
 
-      - name: Upload APK
+      - name: Upload APK as Artifact
         if: env.BUILD_FAILED != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Create Release with APK
+        if: env.BUILD_FAILED != 'true' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "Build v1.0.${{ github.run_number }}"
+          body: "APK gerado automaticamente pelo GitHub Actions"
+          files: app/build/outputs/apk/debug/app-debug.apk
+          make_latest: true
