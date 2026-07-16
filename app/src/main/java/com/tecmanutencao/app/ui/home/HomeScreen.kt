@@ -75,7 +75,7 @@ fun HomeScreen(
                             )
                         }
                         Column {
-                            Text("Tec Manutenção", fontWeight = FontWeight.Bold)
+                            Text("ACM@TECH INFORMÁTICA", fontWeight = FontWeight.Bold)
                             Text(
                                 "Assistência Técnica",
                                 style = MaterialTheme.typography.bodySmall,

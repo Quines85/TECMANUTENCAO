@@ -97,7 +97,7 @@ object PdfGenerator {
             isAntiAlias = true
         }
 
-        val title = config?.nomeEmpresa?.ifEmpty { "Tec Manutenção" } ?: "Tec Manutenção"
+        val title = config?.nomeEmpresa?.ifEmpty { "ACM@TECH INFORMÁTICA" } ?: "ACM@TECH INFORMÁTICA"
         canvas.drawText(title, textStartX, y + 8f, titlePaint)
 
         val infoPaint = Paint().apply {
