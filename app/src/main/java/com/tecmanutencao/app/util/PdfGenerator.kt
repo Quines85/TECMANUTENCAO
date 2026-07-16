@@ -167,7 +167,7 @@ object PdfGenerator {
         canvas.drawText(cliente.nomeCompleto.ifEmpty { "---" }, MARGIN, y, textPaint)
         y += 16f
 
-        val midX = PAGE_WIDTH / 2
+        val midX = PAGE_WIDTH / 2f
 
         if (cliente.cpfCnpj.isNotEmpty()) {
             canvas.drawText("CPF/CNPJ:", MARGIN, y, labelPaint)
@@ -228,7 +228,7 @@ object PdfGenerator {
             textSize = 10f
             isAntiAlias = true
         }
-        val midX = PAGE_WIDTH / 2
+        val midX = PAGE_WIDTH / 2f
 
         canvas.drawText("Tipo:", MARGIN, y, labelPaint)
         canvas.drawText(equipamento.tipoMaquina.descricao, MARGIN + 32f, y, textPaint)

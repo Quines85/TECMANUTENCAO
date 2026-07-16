@@ -112,8 +112,7 @@ private fun MenuCard(item: MenuItem) {
                 imageVector = item.icon,
                 contentDescription = item.title,
                 modifier = Modifier.padding(bottom = 12.dp),
-                tint = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.displayMedium
+                tint = MaterialTheme.colorScheme.primary
             )
             Text(
                 text = item.title,

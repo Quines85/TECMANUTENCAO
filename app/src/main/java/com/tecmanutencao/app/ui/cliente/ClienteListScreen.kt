@@ -144,8 +144,7 @@ private fun ClienteCard(cliente: Cliente, onClick: () -> Unit) {
                     Icon(
                         Icons.Default.Phone,
                         contentDescription = null,
-                        modifier = Modifier.padding(end = 4.dp),
-                        style = MaterialTheme.typography.bodySmall
+                        modifier = Modifier.padding(end = 4.dp)
                     )
                     Text(
                         text = cliente.telefone.ifEmpty { "Sem telefone" },
