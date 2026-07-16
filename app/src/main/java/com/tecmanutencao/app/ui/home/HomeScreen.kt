@@ -64,13 +64,14 @@ fun HomeScreen(
                     ) {
                         androidx.compose.foundation.layout.Box(
                             modifier = Modifier
+                                .width(40.dp)
                                 .height(40.dp)
-                                .padding(end = 12.dp)
+                                .padding(end = 8.dp)
                         ) {
                             androidx.compose.foundation.Image(
                                 painter = painterResource(id = com.tecmanutencao.app.R.drawable.logo_empresa),
                                 contentDescription = "Logo",
-                                modifier = Modifier.fillMaxHeight(),
+                                modifier = Modifier.matchParentSize(),
                                 contentScale = ContentScale.Fit
                             )
                         }
