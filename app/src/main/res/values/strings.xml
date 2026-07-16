@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tec Manutenção</string>
+    <string name="clientes">Clientes</string>
+    <string name="novo_orcamento">Novo Orçamento</string>
+    <string name="orcamentos">Orçamentos</string>
+    <string name="configuracoes">Configurações</string>
+    <string name="salvar">Salvar</string>
+    <string name="editar">Editar</string>
+    <string name="excluir">Excluir</string>
+    <string name="pesquisar">Pesquisar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="confirmar">Confirmar</string>
+    <string name="voltar">Voltar</string>
+    <string name="compartilhar">Compartilhar</string>
+    <string name="visualizar_pdf">Visualizar PDF</string>
+    <string name="sem_registros">Nenhum registro encontrado</string>
+</resources>
