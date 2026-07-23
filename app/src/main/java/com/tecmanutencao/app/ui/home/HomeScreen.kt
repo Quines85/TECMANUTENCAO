@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -14,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -48,13 +48,15 @@ fun HomeScreen(
     onNavigateToClientes: () -> Unit,
     onNavigateToNovoOrcamento: () -> Unit,
     onNavigateToOrcamentos: () -> Unit,
-    onNavigateToConfig: () -> Unit
+    onNavigateToConfig: () -> Unit,
+    onNavigateToVisitas: () -> Unit
 ) {
     val menuItems = listOf(
         MenuItem("Clientes", Icons.Default.People, "Gerenciar clientes", onNavigateToClientes),
         MenuItem("Novo Orçamento", Icons.Default.Description, "Criar orçamento", onNavigateToNovoOrcamento),
         MenuItem("Orçamentos", Icons.Default.Build, "Gerenciar orçamentos", onNavigateToOrcamentos),
-        MenuItem("Configurações", Icons.Default.Settings, "Configurar empresa", onNavigateToConfig)
+        MenuItem("Configurações", Icons.Default.Settings, "Configurar empresa", onNavigateToConfig),
+        MenuItem("Visitas", Icons.Default.Home, "Gerenciar visitas", onNavigateToVisitas)
     )
 
     Scaffold(

@@ -13,6 +13,8 @@ import com.tecmanutencao.app.ui.home.HomeScreen
 import com.tecmanutencao.app.ui.orcamento.OrcamentoDetailScreen
 import com.tecmanutencao.app.ui.orcamento.OrcamentoFormScreen
 import com.tecmanutencao.app.ui.orcamento.OrcamentoListScreen
+import com.tecmanutencao.app.ui.visita.VisitaFormScreen
+import com.tecmanutencao.app.ui.visita.VisitaListScreen
 
 object Routes {
     const val HOME = "home"
@@ -22,10 +24,13 @@ object Routes {
     const val ORCAMENTO_LIST = "orcamento_list"
     const val ORCAMENTO_DETAIL = "orcamento_detail/{orcamentoId}"
     const val CONFIG = "config"
+    const val VISITA_LIST = "visita_list"
+    const val VISITA_FORM = "visita_form/{visitaId}"
 
     fun clienteForm(clienteId: Long = 0L) = "cliente_form/$clienteId"
     fun orcamentoForm(orcamentoId: Long = 0L) = "orcamento_form/$orcamentoId"
     fun orcamentoDetail(orcamentoId: Long) = "orcamento_detail/$orcamentoId"
+    fun visitaForm(visitaId: Long = 0L) = "visita_form/$visitaId"
 }
 
 @Composable
@@ -39,7 +44,8 @@ fun AppNavGraph(navController: NavHostController) {
                 onNavigateToClientes = { navController.navigate(Routes.CLIENTE_LIST) },
                 onNavigateToNovoOrcamento = { navController.navigate(Routes.orcamentoForm()) },
                 onNavigateToOrcamentos = { navController.navigate(Routes.ORCAMENTO_LIST) },
-                onNavigateToConfig = { navController.navigate(Routes.CONFIG) }
+                onNavigateToConfig = { navController.navigate(Routes.CONFIG) },
+                onNavigateToVisitas = { navController.navigate(Routes.VISITA_LIST) }
             )
         }
 
@@ -96,6 +102,26 @@ fun AppNavGraph(navController: NavHostController) {
 
         composable(Routes.CONFIG) {
             ConfigScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(Routes.VISITA_LIST) {
+            VisitaListScreen(
+                onNavigateToForm = { navController.navigate(Routes.visitaForm(it)) },
+                onNavigateToNovo = { navController.navigate(Routes.visitaForm()) },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Routes.VISITA_FORM,
+            arguments = listOf(navArgument("visitaId") { type = NavType.LongType; defaultValue = 0L })
+        ) { backStackEntry ->
+            val visitaId = backStackEntry.arguments?.getLong("visitaId") ?: 0L
+            VisitaFormScreen(
+                visitaId = visitaId,
+                onSave = { navController.popBackStack() },
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }

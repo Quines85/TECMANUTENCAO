@@ -6,6 +6,7 @@ import com.tecmanutencao.app.data.repository.ClienteRepository
 import com.tecmanutencao.app.data.repository.EmpresaConfigRepository
 import com.tecmanutencao.app.data.repository.EquipamentoRepository
 import com.tecmanutencao.app.data.repository.OrcamentoRepository
+import com.tecmanutencao.app.data.repository.VisitaRepository
 
 class TecManutencaoApp : Application() {
 
@@ -24,6 +25,9 @@ class TecManutencaoApp : Application() {
     lateinit var empresaConfigRepository: EmpresaConfigRepository
         private set
 
+    lateinit var visitaRepository: VisitaRepository
+        private set
+
     override fun onCreate() {
         super.onCreate()
 
@@ -33,5 +37,6 @@ class TecManutencaoApp : Application() {
         equipamentoRepository = EquipamentoRepository(database.equipamentoDao())
         orcamentoRepository = OrcamentoRepository(database.orcamentoDao())
         empresaConfigRepository = EmpresaConfigRepository(database.empresaConfigDao())
+        visitaRepository = VisitaRepository(database.visitaDao())
     }
 }

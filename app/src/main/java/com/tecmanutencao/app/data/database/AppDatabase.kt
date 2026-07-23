@@ -8,19 +8,22 @@ import com.tecmanutencao.app.data.database.dao.ClienteDao
 import com.tecmanutencao.app.data.database.dao.EmpresaConfigDao
 import com.tecmanutencao.app.data.database.dao.EquipamentoDao
 import com.tecmanutencao.app.data.database.dao.OrcamentoDao
+import com.tecmanutencao.app.data.database.dao.VisitaDao
 import com.tecmanutencao.app.data.database.entity.ClienteEntity
 import com.tecmanutencao.app.data.database.entity.EmpresaConfigEntity
 import com.tecmanutencao.app.data.database.entity.EquipamentoEntity
 import com.tecmanutencao.app.data.database.entity.OrcamentoEntity
+import com.tecmanutencao.app.data.database.entity.VisitaEntity
 
 @Database(
     entities = [
         ClienteEntity::class,
         EquipamentoEntity::class,
         OrcamentoEntity::class,
-        EmpresaConfigEntity::class
+        EmpresaConfigEntity::class,
+        VisitaEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -29,6 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun equipamentoDao(): EquipamentoDao
     abstract fun orcamentoDao(): OrcamentoDao
     abstract fun empresaConfigDao(): EmpresaConfigDao
+    abstract fun visitaDao(): VisitaDao
 
     companion object {
         @Volatile
@@ -40,7 +44,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "tec_manutencao_db"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }
