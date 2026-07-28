@@ -1,12 +1,18 @@
 package com.tecmanutencao.app.data.backup
 
+import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import com.tecmanutencao.app.data.repository.ClienteRepository
+import com.tecmanutencao.app.data.repository.EmpresaConfigRepository
 import com.tecmanutencao.app.data.repository.EquipamentoRepository
 import com.tecmanutencao.app.data.repository.OrcamentoRepository
 import com.tecmanutencao.app.data.repository.VisitaRepository
 import com.tecmanutencao.app.domain.model.Cliente
+import com.tecmanutencao.app.domain.model.EmpresaConfig
 import com.tecmanutencao.app.domain.model.Equipamento
 import com.tecmanutencao.app.domain.model.FormaPagamento
 import com.tecmanutencao.app.domain.model.Orcamento
@@ -23,13 +29,19 @@ import java.io.InputStreamReader
 
 object BackupService {
 
-    private const val BACKUP_VERSION = 1
+    private const val BACKUP_VERSION = 2
 
     data class BackupData(
+        val empresaConfig: EmpresaConfig?,
         val clientes: List<Cliente>,
         val orcamentos: List<Orcamento>,
         val equipamentos: List<Equipamento>,
         val visitas: List<Visita>
+    )
+
+    data class ExportResult(
+        val file: File,
+        val publicPath: String?
     )
 
     suspend fun exportBackup(
@@ -37,14 +49,16 @@ object BackupService {
         clienteRepo: ClienteRepository,
         orcamentoRepo: OrcamentoRepository,
         equipamentoRepo: EquipamentoRepository,
-        visitaRepo: VisitaRepository
-    ): File {
+        visitaRepo: VisitaRepository,
+        empresaConfigRepo: EmpresaConfigRepository
+    ): ExportResult {
+        val empresaConfig = empresaConfigRepo.getConfigOnce()
         val clientes = clienteRepo.getAllClientes().first()
         val orcamentos = orcamentoRepo.getAllOrcamentos().first()
         val equipamentos = equipamentoRepo.getAllEquipamentos().first()
         val visitas = visitaRepo.getAllVisitas().first()
 
-        val json = buildJson(clientes, orcamentos, equipamentos, visitas)
+        val json = buildJson(empresaConfig, clientes, orcamentos, equipamentos, visitas)
 
         val dir = File(context.filesDir, Constants.BACKUP_DIR)
         if (!dir.exists()) dir.mkdirs()
@@ -52,7 +66,38 @@ object BackupService {
         val file = File(dir, Constants.BACKUP_FILE_NAME)
         file.writeText(json.toString(2))
 
-        return file
+        val publicPath = saveToDownloads(context, file)
+
+        return ExportResult(file, publicPath)
+    }
+
+    private fun saveToDownloads(context: Context, source: File): String? {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.Downloads.DISPLAY_NAME, Constants.BACKUP_FILE_NAME)
+                    put(MediaStore.Downloads.MIME_TYPE, "application/json")
+                    put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                }
+                val uri = context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                if (uri != null) {
+                    context.contentResolver.openOutputStream(uri)?.use { output ->
+                        source.inputStream().use { input ->
+                            input.copyTo(output)
+                        }
+                    }
+                    val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    "$downloadsDir/${Constants.BACKUP_FILE_NAME}"
+                } else null
+            } else {
+                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val dest = File(downloadsDir, Constants.BACKUP_FILE_NAME)
+                source.copyTo(dest, overwrite = true)
+                dest.absolutePath
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     suspend fun importBackup(
@@ -61,7 +106,8 @@ object BackupService {
         clienteRepo: ClienteRepository,
         orcamentoRepo: OrcamentoRepository,
         equipamentoRepo: EquipamentoRepository,
-        visitaRepo: VisitaRepository
+        visitaRepo: VisitaRepository,
+        empresaConfigRepo: EmpresaConfigRepository
     ): ImportResult {
         val json = context.contentResolver.openInputStream(uri)?.use { input ->
             BufferedReader(InputStreamReader(input)).readText()
@@ -70,13 +116,18 @@ object BackupService {
         return try {
             val root = JSONObject(json)
             val version = root.optInt("version", 0)
-            if (version != BACKUP_VERSION) {
+            if (version < 1 || version > BACKUP_VERSION) {
                 return ImportResult.Error("Versão do backup incompatível: $version")
             }
 
             val data = parseJson(root)
 
             var imported = 0
+
+            if (data.empresaConfig != null) {
+                empresaConfigRepo.saveConfig(data.empresaConfig.copy(id = 1))
+                imported++
+            }
 
             val clienteIdMap = mutableMapOf<Long, Long>()
             for (cliente in data.clientes) {
@@ -137,6 +188,7 @@ object BackupService {
     }
 
     private fun buildJson(
+        empresaConfig: EmpresaConfig?,
         clientes: List<Cliente>,
         orcamentos: List<Orcamento>,
         equipamentos: List<Equipamento>,
@@ -146,6 +198,7 @@ object BackupService {
             put("version", BACKUP_VERSION)
             put("exportDate", System.currentTimeMillis())
 
+            put("empresaConfig", empresaConfig?.toJson() ?: JSONObject.NULL)
             put("clientes", JSONArray().apply {
                 clientes.forEach { put(it.toJson()) }
             })
@@ -162,6 +215,10 @@ object BackupService {
     }
 
     private fun parseJson(root: JSONObject): BackupData {
+        val empresaConfig = if (!root.isNull("empresaConfig")) {
+            empresaConfigFromJson(root.optJSONObject("empresaConfig"))
+        } else null
+
         val clientes = mutableListOf<Cliente>()
         val orcamentos = mutableListOf<Orcamento>()
         val equipamentos = mutableListOf<Equipamento>()
@@ -187,7 +244,19 @@ object BackupService {
             visitas.add(visitaFromJson(visitasArr.getJSONObject(i)))
         }
 
-        return BackupData(clientes, orcamentos, equipamentos, visitas)
+        return BackupData(empresaConfig, clientes, orcamentos, equipamentos, visitas)
+    }
+
+    private fun EmpresaConfig.toJson() = JSONObject().apply {
+        put("nomeEmpresa", nomeEmpresa)
+        put("cnpj", cnpj)
+        put("telefone", telefone)
+        put("whatsapp", whatsapp)
+        put("email", email)
+        put("endereco", endereco)
+        put("cidade", cidade)
+        put("estado", estado)
+        put("cep", cep)
     }
 
     private fun Cliente.toJson() = JSONObject().apply {
@@ -234,6 +303,20 @@ object BackupService {
         put("solucao", solucao)
         put("valor", valor)
         put("observacoes", observacoes)
+    }
+
+    private fun empresaConfigFromJson(obj: JSONObject?) = obj?.let {
+        EmpresaConfig(
+            nomeEmpresa = it.optString("nomeEmpresa", ""),
+            cnpj = it.optString("cnpj", ""),
+            telefone = it.optString("telefone", ""),
+            whatsapp = it.optString("whatsapp", ""),
+            email = it.optString("email", ""),
+            endereco = it.optString("endereco", ""),
+            cidade = it.optString("cidade", ""),
+            estado = it.optString("estado", ""),
+            cep = it.optString("cep", "")
+        )
     }
 
     private fun clienteFromJson(obj: JSONObject) = Cliente(

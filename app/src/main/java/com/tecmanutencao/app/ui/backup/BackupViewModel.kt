@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.tecmanutencao.app.TecManutencaoApp
 import com.tecmanutencao.app.data.backup.BackupService
 import com.tecmanutencao.app.data.repository.ClienteRepository
+import com.tecmanutencao.app.data.repository.EmpresaConfigRepository
 import com.tecmanutencao.app.data.repository.EquipamentoRepository
 import com.tecmanutencao.app.data.repository.OrcamentoRepository
 import com.tecmanutencao.app.data.repository.VisitaRepository
@@ -20,6 +21,7 @@ data class BackupUiState(
     val isExporting: Boolean = false,
     val isImporting: Boolean = false,
     val exportedFile: File? = null,
+    val exportPath: String? = null,
     val importResult: String? = null,
     val errorMessage: String? = null,
     val successMessage: String? = null
@@ -30,7 +32,8 @@ class BackupViewModel(
     private val clienteRepository: ClienteRepository,
     private val orcamentoRepository: OrcamentoRepository,
     private val equipamentoRepository: EquipamentoRepository,
-    private val visitaRepository: VisitaRepository
+    private val visitaRepository: VisitaRepository,
+    private val empresaConfigRepository: EmpresaConfigRepository
 ) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(BackupUiState())
@@ -40,17 +43,24 @@ class BackupViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isExporting = true, errorMessage = null, successMessage = null)
             try {
-                val file = BackupService.exportBackup(
+                val result = BackupService.exportBackup(
                     context = getApplication(),
                     clienteRepo = clienteRepository,
                     orcamentoRepo = orcamentoRepository,
                     equipamentoRepo = equipamentoRepository,
-                    visitaRepo = visitaRepository
+                    visitaRepo = visitaRepository,
+                    empresaConfigRepo = empresaConfigRepository
                 )
+                val pathMsg = if (result.publicPath != null) {
+                    "Salvo em: ${result.publicPath}"
+                } else {
+                    "Arquivo interno: ${result.file.absolutePath}"
+                }
                 _uiState.value = _uiState.value.copy(
                     isExporting = false,
-                    exportedFile = file,
-                    successMessage = "Backup exportado com sucesso!"
+                    exportedFile = result.file,
+                    exportPath = result.publicPath ?: result.file.absolutePath,
+                    successMessage = "Backup exportado com sucesso!\n$pathMsg"
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -71,7 +81,8 @@ class BackupViewModel(
                     clienteRepo = clienteRepository,
                     orcamentoRepo = orcamentoRepository,
                     equipamentoRepo = equipamentoRepository,
-                    visitaRepo = visitaRepository
+                    visitaRepo = visitaRepository,
+                    empresaConfigRepo = empresaConfigRepository
                 )
                 when (result) {
                     is BackupService.ImportResult.Success -> {
@@ -99,6 +110,7 @@ class BackupViewModel(
     fun resetMessages() {
         _uiState.value = _uiState.value.copy(
             exportedFile = null,
+            exportPath = null,
             importResult = null,
             errorMessage = null,
             successMessage = null
@@ -116,7 +128,8 @@ class BackupViewModel(
                 clienteRepository = app.clienteRepository,
                 orcamentoRepository = app.orcamentoRepository,
                 equipamentoRepository = app.equipamentoRepository,
-                visitaRepository = app.visitaRepository
+                visitaRepository = app.visitaRepository,
+                empresaConfigRepository = app.empresaConfigRepository
             ) as T
         }
     }

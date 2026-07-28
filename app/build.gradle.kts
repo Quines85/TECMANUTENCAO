@@ -4,42 +4,6 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
-val keystoreFile = rootProject.file("app/keystore.jks")
-val keystorePassword = "TecManutencao2026!"
-val keyAlias = "tecmanutencao"
-val keyPassword = "TecManutencao2026!"
-
-tasks.register("generateKeystore") {
-    doLast {
-        if (!keystoreFile.exists()) {
-            val jdkHome = org.gradle.internal.jvm.Jvm.current().javaHome
-            val keytool = if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)) {
-                file("$jdkHome/bin/keytool.exe")
-            } else {
-                file("$jdkHome/bin/keytool")
-            }
-            exec {
-                commandLine(
-                    keytool.absolutePath,
-                    "-genkey", "-v",
-                    "-keystore", keystoreFile.absolutePath,
-                    "-alias", keyAlias,
-                    "-keyalg", "RSA",
-                    "-keysize", "2048",
-                    "-validity", "10000",
-                    "-storepass", keystorePassword,
-                    "-keypass", keyPassword,
-                    "-dname", "CN=ACM-TECH, OU=Dev, O=ACM-TECH INFORMATICA, L=Cidade, ST=Estado, C=BR"
-                )
-            }
-        }
-    }
-}
-
-tasks.matching { it.name.startsWith("compile") }.configureEach {
-    dependsOn("generateKeystore")
-}
-
 android {
     namespace = "com.tecmanutencao.app"
     compileSdk = 34
@@ -54,17 +18,16 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = keystoreFile
-            storePassword = keystorePassword
-            keyAlias = keyAlias
-            keyPassword = keyPassword
+            storeFile = rootProject.file("app/keystore.jks")
+            storePassword = "TecManutencao2026!"
+            keyAlias = "tecmanutencao"
+            keyPassword = "TecManutencao2026!"
         }
     }
 
     buildTypes {
         debug {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = false
         }
         release {
             signingConfig = signingConfigs.getByName("release")
@@ -94,6 +57,40 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+}
+
+tasks.register("generateKeystore") {
+    doLast {
+        val ks = rootProject.file("app/keystore.jks")
+        if (!ks.exists()) {
+            val jdkHome = org.gradle.internal.jvm.Jvm.current().javaHome
+            val keytool = if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)) {
+                file("$jdkHome/bin/keytool.exe")
+            } else {
+                file("$jdkHome/bin/keytool")
+            }
+            exec {
+                commandLine(
+                    keytool.absolutePath,
+                    "-genkey", "-v",
+                    "-keystore", ks.absolutePath,
+                    "-alias", "tecmanutencao",
+                    "-keyalg", "RSA",
+                    "-keysize", "2048",
+                    "-validity", "10000",
+                    "-storepass", "TecManutencao2026!",
+                    "-keypass", "TecManutencao2026!",
+                    "-dname", "CN=ACM-TECH, OU=Dev, O=ACM-TECH INFORMATICA, L=Cidade, ST=Estado, C=BR"
+                )
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.matching { it.name.startsWith("compile") || it.name.startsWith("merge") || it.name.startsWith("package") }.configureEach {
+        dependsOn("generateKeystore")
     }
 }
 
