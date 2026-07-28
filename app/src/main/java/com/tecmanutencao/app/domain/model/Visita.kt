@@ -8,5 +8,6 @@ data class Visita(
     val problemaRelatado: String = "",
     val solucao: String = "",
     val valor: Double = 0.0,
-    val observacoes: String = ""
+    val observacoes: String = "",
+    val status: StatusVisita = StatusVisita.AGENDADA
 )

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tecmanutencao.app.data.repository.VisitaRepository
+import com.tecmanutencao.app.domain.model.StatusVisita
 import com.tecmanutencao.app.domain.model.Visita
 import com.tecmanutencao.app.util.NumberUtils
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -78,6 +79,7 @@ class VisitaViewModel(
                 "solucao" -> current.copy(solucao = value as String)
                 "valor" -> current.copy(valor = value as Double)
                 "observacoes" -> current.copy(observacoes = value as String)
+                "status" -> current.copy(status = value as StatusVisita)
                 else -> current
             }
         )

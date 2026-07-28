@@ -23,7 +23,7 @@ import com.tecmanutencao.app.data.database.entity.VisitaEntity
         EmpresaConfigEntity::class,
         VisitaEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

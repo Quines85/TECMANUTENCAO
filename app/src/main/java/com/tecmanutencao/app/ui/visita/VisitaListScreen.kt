@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tecmanutencao.app.domain.model.StatusVisita
 import com.tecmanutencao.app.domain.model.Visita
 import com.tecmanutencao.app.ui.components.EmptyState
 import com.tecmanutencao.app.ui.components.SearchBar
@@ -154,11 +155,23 @@ private fun VisitaCard(visita: Visita, onClick: () -> Unit) {
                 modifier = Modifier.padding(end = 12.dp)
             )
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = visita.nomeCliente.ifEmpty { "Sem nome" },
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = visita.nomeCliente.ifEmpty { "Sem nome" },
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = " [${visita.status.descricao}]",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = when (visita.status) {
+                            StatusVisita.FINALIZADA -> MaterialTheme.colorScheme.primary
+                            StatusVisita.EM_ANDAMENTO -> MaterialTheme.colorScheme.tertiary
+                            StatusVisita.AGENDADA -> MaterialTheme.colorScheme.secondary
+                        }
+                    )
+                }
                 Text(
                     text = "Data: ${DateUtils.formatDate(visita.data)}",
                     style = MaterialTheme.typography.bodySmall,

@@ -34,6 +34,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import com.tecmanutencao.app.domain.model.StatusVisita
 import com.tecmanutencao.app.ui.components.ConfirmDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -127,6 +133,28 @@ fun VisitaFormScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true
             )
+
+            var statusExpanded by remember { mutableStateOf(false) }
+            Box(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                OutlinedTextField(
+                    value = uiState.currentVisita.status.descricao,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Status") },
+                    trailingIcon = { Icon(Icons.Default.ExpandMore, contentDescription = null) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                Box(modifier = Modifier.matchParentSize().clickable { statusExpanded = true })
+                DropdownMenu(expanded = statusExpanded, onDismissRequest = { statusExpanded = false }) {
+                    StatusVisita.entries.forEach { status ->
+                        DropdownMenuItem(
+                            text = { Text(status.descricao) },
+                            onClick = { viewModel.updateField("status", status); statusExpanded = false }
+                        )
+                    }
+                }
+            }
 
             OutlinedTextField(
                 value = uiState.currentVisita.problemaRelatado,

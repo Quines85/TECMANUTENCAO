@@ -17,6 +17,7 @@ import com.tecmanutencao.app.domain.model.Equipamento
 import com.tecmanutencao.app.domain.model.FormaPagamento
 import com.tecmanutencao.app.domain.model.Orcamento
 import com.tecmanutencao.app.domain.model.StatusOrcamento
+import com.tecmanutencao.app.domain.model.StatusVisita
 import com.tecmanutencao.app.domain.model.TipoMaquina
 import com.tecmanutencao.app.domain.model.Visita
 import com.tecmanutencao.app.util.Constants
@@ -317,6 +318,7 @@ object BackupService {
         put("solucao", solucao)
         put("valor", valor)
         put("observacoes", observacoes)
+        put("status", status.name)
     }
 
     private fun empresaConfigFromJson(obj: JSONObject?) = obj?.let {
@@ -380,6 +382,7 @@ object BackupService {
         problemaRelatado = obj.optString("problemaRelatado", ""),
         solucao = obj.optString("solucao", ""),
         valor = obj.optDouble("valor", 0.0),
-        observacoes = obj.optString("observacoes", "")
+        observacoes = obj.optString("observacoes", ""),
+        status = try { StatusVisita.valueOf(obj.optString("status", "")) } catch (e: Exception) { StatusVisita.AGENDADA }
     )
 }
