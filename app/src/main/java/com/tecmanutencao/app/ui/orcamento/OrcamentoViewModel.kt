@@ -152,15 +152,25 @@ class OrcamentoViewModel(
                     orcamentoId = orcamentoRepository.saveOrcamento(finalOrcamento)
 
                     val equip = state.currentEquipamento.copy(orcamentoId = orcamentoId)
-                    equipamentoRepository.saveEquipamento(equip)
+                    val equipId = equipamentoRepository.saveEquipamento(equip)
+
+                    val updatedOrcamento = finalOrcamento.copy(
+                        id = orcamentoId, equipamentoId = equipId
+                    )
+                    orcamentoRepository.updateOrcamento(updatedOrcamento)
 
                     _uiState.value = _uiState.value.copy(
-                        currentOrcamento = finalOrcamento.copy(id = orcamentoId)
+                        currentOrcamento = updatedOrcamento
                     )
                 } else {
-                    orcamentoRepository.updateOrcamento(orcamento)
                     val equip = state.currentEquipamento.copy(orcamentoId = orcamento.id)
-                    equipamentoRepository.updateEquipamento(equip)
+                    val equipId = if (equip.id == 0L) {
+                        equipamentoRepository.saveEquipamento(equip)
+                    } else {
+                        equipamentoRepository.updateEquipamento(equip)
+                        equip.id
+                    }
+                    orcamentoRepository.updateOrcamento(orcamento.copy(equipamentoId = equipId))
                 }
 
                 _uiState.value = _uiState.value.copy(isSaving = false, saveSuccess = true)
