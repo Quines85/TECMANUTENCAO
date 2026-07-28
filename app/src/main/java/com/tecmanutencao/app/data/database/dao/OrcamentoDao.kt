@@ -32,4 +32,13 @@ interface OrcamentoDao {
 
     @Query("SELECT COUNT(*) FROM orcamentos")
     suspend fun getOrcamentoCount(): Int
+
+    @Query("SELECT COUNT(*) FROM orcamentos WHERE data BETWEEN :startDate AND :endDate")
+    suspend fun getOrcamentoCountBetween(startDate: Long, endDate: Long): Int
+
+    @Query("SELECT COUNT(*) FROM orcamentos WHERE data BETWEEN :startDate AND :endDate AND status = 'FINALIZADO'")
+    suspend fun getFinalizedOrcamentoCountBetween(startDate: Long, endDate: Long): Int
+
+    @Query("SELECT COALESCE(SUM(valorServico), 0) FROM orcamentos WHERE data BETWEEN :startDate AND :endDate AND status = 'FINALIZADO'")
+    suspend fun getOrcamentoProfitBetween(startDate: Long, endDate: Long): Double
 }

@@ -29,4 +29,7 @@ interface ClienteDao {
 
     @Delete
     suspend fun deleteCliente(cliente: ClienteEntity)
+
+    @Query("SELECT COUNT(*) FROM clientes WHERE dataCadastro BETWEEN :startDate AND :endDate")
+    suspend fun getNewClientCountBetween(startDate: Long, endDate: Long): Int
 }

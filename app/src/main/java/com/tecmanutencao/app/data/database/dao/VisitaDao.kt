@@ -24,6 +24,12 @@ interface VisitaDao {
     @Query("SELECT SUM(valor) FROM visitas")
     suspend fun getTotalVisitas(): Double
 
+    @Query("SELECT COUNT(*) FROM visitas WHERE data BETWEEN :startDate AND :endDate")
+    suspend fun getVisitaCountBetween(startDate: Long, endDate: Long): Int
+
+    @Query("SELECT COALESCE(SUM(valor), 0) FROM visitas WHERE data BETWEEN :startDate AND :endDate")
+    suspend fun getVisitaProfitBetween(startDate: Long, endDate: Long): Double
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVisita(visita: VisitaEntity): Long
 

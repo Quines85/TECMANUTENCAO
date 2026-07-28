@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,7 +52,8 @@ fun HomeScreen(
     onNavigateToOrcamentos: () -> Unit,
     onNavigateToConfig: () -> Unit,
     onNavigateToVisitas: () -> Unit,
-    onNavigateToBackup: () -> Unit
+    onNavigateToBackup: () -> Unit,
+    onNavigateToDashboard: () -> Unit
 ) {
     val menuItems = listOf(
         MenuItem("Clientes", Icons.Default.People, "Gerenciar clientes", onNavigateToClientes),
@@ -59,7 +61,8 @@ fun HomeScreen(
         MenuItem("Or\u00e7amentos", Icons.Default.Build, "Gerenciar or\u00e7amentos", onNavigateToOrcamentos),
         MenuItem("Configura\u00e7\u00f5es", Icons.Default.Settings, "Configurar empresa", onNavigateToConfig),
         MenuItem("Visitas", Icons.Default.Home, "Gerenciar visitas", onNavigateToVisitas),
-        MenuItem("Backup", Icons.Default.CloudUpload, "Exportar/Importar dados", onNavigateToBackup)
+        MenuItem("Backup", Icons.Default.CloudUpload, "Exportar/Importar dados", onNavigateToBackup),
+        MenuItem("Dashboard", Icons.Default.TrendingUp, "Lucros e estatísticas", onNavigateToDashboard)
     )
 
     Scaffold(

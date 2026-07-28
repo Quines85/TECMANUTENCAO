@@ -10,6 +10,7 @@ import com.tecmanutencao.app.ui.backup.BackupScreen
 import com.tecmanutencao.app.ui.cliente.ClienteFormScreen
 import com.tecmanutencao.app.ui.cliente.ClienteListScreen
 import com.tecmanutencao.app.ui.config.ConfigScreen
+import com.tecmanutencao.app.ui.dashboard.DashboardScreen
 import com.tecmanutencao.app.ui.home.HomeScreen
 import com.tecmanutencao.app.ui.orcamento.OrcamentoDetailScreen
 import com.tecmanutencao.app.ui.orcamento.OrcamentoFormScreen
@@ -28,6 +29,7 @@ object Routes {
     const val VISITA_LIST = "visita_list"
     const val VISITA_FORM = "visita_form/{visitaId}"
     const val BACKUP = "backup"
+    const val DASHBOARD = "dashboard"
 
     fun clienteForm(clienteId: Long = 0L) = "cliente_form/$clienteId"
     fun orcamentoForm(orcamentoId: Long = 0L) = "orcamento_form/$orcamentoId"
@@ -48,7 +50,8 @@ fun AppNavGraph(navController: NavHostController) {
                 onNavigateToOrcamentos = { navController.navigate(Routes.ORCAMENTO_LIST) },
                 onNavigateToConfig = { navController.navigate(Routes.CONFIG) },
                 onNavigateToVisitas = { navController.navigate(Routes.VISITA_LIST) },
-                onNavigateToBackup = { navController.navigate(Routes.BACKUP) }
+                onNavigateToBackup = { navController.navigate(Routes.BACKUP) },
+                onNavigateToDashboard = { navController.navigate(Routes.DASHBOARD) }
             )
         }
 
@@ -125,6 +128,10 @@ fun AppNavGraph(navController: NavHostController) {
                 onSave = { navController.popBackStack() },
                 onBack = { navController.popBackStack() }
             )
+        }
+
+        composable(Routes.DASHBOARD) {
+            DashboardScreen(onBack = { navController.popBackStack() })
         }
 
         composable(Routes.BACKUP) {

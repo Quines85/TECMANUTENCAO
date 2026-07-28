@@ -29,4 +29,13 @@ class OrcamentoRepository(private val dao: OrcamentoDao) {
 
     suspend fun getOrcamentoCount(): Int =
         dao.getOrcamentoCount()
+
+    suspend fun getOrcamentoCountBetween(startDate: Long, endDate: Long): Int =
+        dao.getOrcamentoCountBetween(startDate, endDate)
+
+    suspend fun getFinalizedOrcamentoCountBetween(startDate: Long, endDate: Long): Int =
+        dao.getFinalizedOrcamentoCountBetween(startDate, endDate)
+
+    suspend fun getOrcamentoProfitBetween(startDate: Long, endDate: Long): Double =
+        dao.getOrcamentoProfitBetween(startDate, endDate)
 }

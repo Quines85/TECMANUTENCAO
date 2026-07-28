@@ -26,4 +26,7 @@ class ClienteRepository(private val dao: ClienteDao) {
 
     suspend fun deleteCliente(cliente: Cliente) =
         dao.deleteCliente(cliente.toEntity())
+
+    suspend fun getNewClientCountBetween(startDate: Long, endDate: Long): Int =
+        dao.getNewClientCountBetween(startDate, endDate)
 }
