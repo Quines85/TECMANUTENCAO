@@ -29,4 +29,7 @@ class ClienteRepository(private val dao: ClienteDao) {
 
     suspend fun getNewClientCountBetween(startDate: Long, endDate: Long): Int =
         dao.getNewClientCountBetween(startDate, endDate)
+
+    suspend fun getClientesBetween(startDate: Long, endDate: Long): List<Cliente> =
+        dao.getClientesBetween(startDate, endDate).map { it.toDomain() }
 }

@@ -41,4 +41,10 @@ interface OrcamentoDao {
 
     @Query("SELECT COALESCE(SUM(valorServico), 0) FROM orcamentos WHERE data BETWEEN :startDate AND :endDate AND status = 'FINALIZADO'")
     suspend fun getOrcamentoProfitBetween(startDate: Long, endDate: Long): Double
+
+    @Query("SELECT * FROM orcamentos WHERE data BETWEEN :startDate AND :endDate ORDER BY data DESC")
+    suspend fun getOrcamentosBetween(startDate: Long, endDate: Long): List<OrcamentoEntity>
+
+    @Query("SELECT * FROM orcamentos WHERE data BETWEEN :startDate AND :endDate AND status = 'FINALIZADO' ORDER BY data DESC")
+    suspend fun getFinalizedOrcamentosBetween(startDate: Long, endDate: Long): List<OrcamentoEntity>
 }

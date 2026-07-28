@@ -32,4 +32,7 @@ interface ClienteDao {
 
     @Query("SELECT COUNT(*) FROM clientes WHERE dataCadastro BETWEEN :startDate AND :endDate")
     suspend fun getNewClientCountBetween(startDate: Long, endDate: Long): Int
+
+    @Query("SELECT * FROM clientes WHERE dataCadastro BETWEEN :startDate AND :endDate ORDER BY dataCadastro DESC")
+    suspend fun getClientesBetween(startDate: Long, endDate: Long): List<ClienteEntity>
 }

@@ -38,4 +38,10 @@ class OrcamentoRepository(private val dao: OrcamentoDao) {
 
     suspend fun getOrcamentoProfitBetween(startDate: Long, endDate: Long): Double =
         dao.getOrcamentoProfitBetween(startDate, endDate)
+
+    suspend fun getOrcamentosBetween(startDate: Long, endDate: Long): List<Orcamento> =
+        dao.getOrcamentosBetween(startDate, endDate).map { it.toDomain() }
+
+    suspend fun getFinalizedOrcamentosBetween(startDate: Long, endDate: Long): List<Orcamento> =
+        dao.getFinalizedOrcamentosBetween(startDate, endDate).map { it.toDomain() }
 }

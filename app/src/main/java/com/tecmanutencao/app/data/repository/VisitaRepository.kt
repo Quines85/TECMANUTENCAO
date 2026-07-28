@@ -27,6 +27,9 @@ class VisitaRepository(private val dao: VisitaDao) {
     suspend fun getVisitaProfitBetween(startDate: Long, endDate: Long): Double =
         dao.getVisitaProfitBetween(startDate, endDate)
 
+    suspend fun getVisitasBetween(startDate: Long, endDate: Long): List<Visita> =
+        dao.getVisitasBetween(startDate, endDate).map { it.toDomain() }
+
     suspend fun saveVisita(visita: Visita): Long =
         dao.insertVisita(visita.toEntity())
 
