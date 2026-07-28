@@ -44,6 +44,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Generate keystore if missing
+        run: |
+          if [ ! -f app/keystore.jks ]; then
+            ./gradlew generateKeystore --no-daemon
+          fi
+
       - name: Build Debug APK
         id: build
         run: |
@@ -68,6 +74,13 @@ jobs:
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload keystore
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keystore
+          path: app/keystore.jks
 
       - name: Create Release with APK
         if: success() && github.ref == 'refs/heads/main'

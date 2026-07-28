@@ -4,6 +4,42 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
+val keystoreFile = rootProject.file("app/keystore.jks")
+val keystorePassword = "TecManutencao2026!"
+val keyAlias = "tecmanutencao"
+val keyPassword = "TecManutencao2026!"
+
+tasks.register("generateKeystore") {
+    doLast {
+        if (!keystoreFile.exists()) {
+            val jdkHome = org.gradle.internal.jvm.Jvm.current().javaHome
+            val keytool = if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)) {
+                file("$jdkHome/bin/keytool.exe")
+            } else {
+                file("$jdkHome/bin/keytool")
+            }
+            exec {
+                commandLine(
+                    keytool.absolutePath,
+                    "-genkey", "-v",
+                    "-keystore", keystoreFile.absolutePath,
+                    "-alias", keyAlias,
+                    "-keyalg", "RSA",
+                    "-keysize", "2048",
+                    "-validity", "10000",
+                    "-storepass", keystorePassword,
+                    "-keypass", keyPassword,
+                    "-dname", "CN=ACM-TECH, OU=Dev, O=ACM-TECH INFORMATICA, L=Cidade, ST=Estado, C=BR"
+                )
+            }
+        }
+    }
+}
+
+tasks.matching { it.name.startsWith("compile") }.configureEach {
+    dependsOn("generateKeystore")
+}
+
 android {
     namespace = "com.tecmanutencao.app"
     compileSdk = 34
@@ -12,12 +48,26 @@ android {
         applicationId = "com.tecmanutencao.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
+        versionName = "1.0.${System.getenv("GITHUB_RUN_NUMBER") ?: "0"}"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = keystoreFile
+            storePassword = keystorePassword
+            keyAlias = keyAlias
+            keyPassword = keyPassword
+        }
     }
 
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+        }
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
@@ -48,18 +98,15 @@ android {
 }
 
 dependencies {
-    // Compose BOM
     val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
     implementation(composeBom)
 
-    // Core
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
 
-    // Compose UI
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -67,17 +114,13 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.foundation:foundation")
 
-    // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
-    // Room
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
-    // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    // Debug
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
