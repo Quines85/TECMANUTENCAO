@@ -214,14 +214,10 @@ private fun LineChart(data: List<MonthlyDashboardData>) {
                     }
                 }
 
-                val paint = android.graphics.Paint().apply {
-                    color = colors.axis.hashCode(); textSize = 22f
-                    textAlign = android.graphics.Paint.Align.LEFT
-                }
                 if (data.size > 1) {
                     val step = (data.size - 1) / 6.coerceAtMost(data.size - 1).coerceAtLeast(1)
                     (data.indices step step).forEach { i ->
-                        drawContext.canvas.nativeCanvas.drawText(data[i].monthShort, x(i) - 8f, h - 5f, paint)
+                        drawCircle(Color(0xFF616161), radius = 2f, center = Offset(x(i), t + ch + 8f))
                     }
                 }
             }
