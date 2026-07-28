@@ -151,66 +151,50 @@ private fun VisitaCard(visita: Visita, onClick: () -> Unit) {
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp)
         ) {
-            Icon(
-                Icons.Default.Build,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(end = 12.dp)
+            Text(
+                text = visita.nomeCliente.ifEmpty { "Sem nome" },
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
             )
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = visita.nomeCliente.ifEmpty { "Sem nome" },
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Surface(
-                        shape = RoundedCornerShape(4.dp),
-                        color = when (visita.status) {
-                            StatusVisita.FINALIZADA -> MaterialTheme.colorScheme.primaryContainer
-                            StatusVisita.EM_ANDAMENTO -> MaterialTheme.colorScheme.tertiaryContainer
-                            StatusVisita.AGENDADA -> MaterialTheme.colorScheme.secondaryContainer
-                        }
-                    ) {
-                        Text(
-                            text = visita.status.descricao,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                            color = when (visita.status) {
-                                StatusVisita.FINALIZADA -> MaterialTheme.colorScheme.onPrimaryContainer
-                                StatusVisita.EM_ANDAMENTO -> MaterialTheme.colorScheme.onTertiaryContainer
-                                StatusVisita.AGENDADA -> MaterialTheme.colorScheme.onSecondaryContainer
-                            }
-                        )
-                    }
-                }
-                Text(
-                    text = "Data: ${DateUtils.formatDate(visita.data)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                if (visita.endereco.isNotEmpty()) {
-                    Text(
-                        text = visita.endereco,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = DateUtils.formatDate(visita.data),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(2.dp))
             Text(
                 text = NumberUtils.formatCurrency(visita.valor),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
+            Spacer(Modifier.height(2.dp))
+            Surface(
+                shape = RoundedCornerShape(4.dp),
+                color = when (visita.status) {
+                    StatusVisita.FINALIZADA -> MaterialTheme.colorScheme.primaryContainer
+                    StatusVisita.EM_ANDAMENTO -> MaterialTheme.colorScheme.tertiaryContainer
+                    StatusVisita.AGENDADA -> MaterialTheme.colorScheme.secondaryContainer
+                }
+            ) {
+                Text(
+                    text = visita.status.descricao,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                    color = when (visita.status) {
+                        StatusVisita.FINALIZADA -> MaterialTheme.colorScheme.onPrimaryContainer
+                        StatusVisita.EM_ANDAMENTO -> MaterialTheme.colorScheme.onTertiaryContainer
+                        StatusVisita.AGENDADA -> MaterialTheme.colorScheme.onSecondaryContainer
+                    }
+                )
+            }
         }
     }
 }
