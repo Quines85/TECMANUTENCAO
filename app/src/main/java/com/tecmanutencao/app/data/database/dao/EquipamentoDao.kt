@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface EquipamentoDao {
 
+    @Query("SELECT * FROM equipamentos")
+    fun getAllEquipamentos(): Flow<List<EquipamentoEntity>>
+
     @Query("SELECT * FROM equipamentos WHERE orcamentoId = :orcamentoId")
     fun getEquipamentosByOrcamentoId(orcamentoId: Long): Flow<List<EquipamentoEntity>>
 

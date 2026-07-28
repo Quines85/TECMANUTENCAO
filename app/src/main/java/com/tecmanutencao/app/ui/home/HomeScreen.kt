@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,14 +50,16 @@ fun HomeScreen(
     onNavigateToNovoOrcamento: () -> Unit,
     onNavigateToOrcamentos: () -> Unit,
     onNavigateToConfig: () -> Unit,
-    onNavigateToVisitas: () -> Unit
+    onNavigateToVisitas: () -> Unit,
+    onNavigateToBackup: () -> Unit
 ) {
     val menuItems = listOf(
         MenuItem("Clientes", Icons.Default.People, "Gerenciar clientes", onNavigateToClientes),
-        MenuItem("Novo Orçamento", Icons.Default.Description, "Criar orçamento", onNavigateToNovoOrcamento),
-        MenuItem("Orçamentos", Icons.Default.Build, "Gerenciar orçamentos", onNavigateToOrcamentos),
-        MenuItem("Configurações", Icons.Default.Settings, "Configurar empresa", onNavigateToConfig),
-        MenuItem("Visitas", Icons.Default.Home, "Gerenciar visitas", onNavigateToVisitas)
+        MenuItem("Novo Or\u00e7amento", Icons.Default.Description, "Criar or\u00e7amento", onNavigateToNovoOrcamento),
+        MenuItem("Or\u00e7amentos", Icons.Default.Build, "Gerenciar or\u00e7amentos", onNavigateToOrcamentos),
+        MenuItem("Configura\u00e7\u00f5es", Icons.Default.Settings, "Configurar empresa", onNavigateToConfig),
+        MenuItem("Visitas", Icons.Default.Home, "Gerenciar visitas", onNavigateToVisitas),
+        MenuItem("Backup", Icons.Default.CloudUpload, "Exportar/Importar dados", onNavigateToBackup)
     )
 
     Scaffold(

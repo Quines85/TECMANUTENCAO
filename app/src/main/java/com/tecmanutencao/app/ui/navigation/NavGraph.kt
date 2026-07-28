@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.tecmanutencao.app.ui.backup.BackupScreen
 import com.tecmanutencao.app.ui.cliente.ClienteFormScreen
 import com.tecmanutencao.app.ui.cliente.ClienteListScreen
 import com.tecmanutencao.app.ui.config.ConfigScreen
@@ -26,6 +27,7 @@ object Routes {
     const val CONFIG = "config"
     const val VISITA_LIST = "visita_list"
     const val VISITA_FORM = "visita_form/{visitaId}"
+    const val BACKUP = "backup"
 
     fun clienteForm(clienteId: Long = 0L) = "cliente_form/$clienteId"
     fun orcamentoForm(orcamentoId: Long = 0L) = "orcamento_form/$orcamentoId"
@@ -45,7 +47,8 @@ fun AppNavGraph(navController: NavHostController) {
                 onNavigateToNovoOrcamento = { navController.navigate(Routes.orcamentoForm()) },
                 onNavigateToOrcamentos = { navController.navigate(Routes.ORCAMENTO_LIST) },
                 onNavigateToConfig = { navController.navigate(Routes.CONFIG) },
-                onNavigateToVisitas = { navController.navigate(Routes.VISITA_LIST) }
+                onNavigateToVisitas = { navController.navigate(Routes.VISITA_LIST) },
+                onNavigateToBackup = { navController.navigate(Routes.BACKUP) }
             )
         }
 
@@ -122,6 +125,10 @@ fun AppNavGraph(navController: NavHostController) {
                 onSave = { navController.popBackStack() },
                 onBack = { navController.popBackStack() }
             )
+        }
+
+        composable(Routes.BACKUP) {
+            BackupScreen(onBack = { navController.popBackStack() })
         }
     }
 }

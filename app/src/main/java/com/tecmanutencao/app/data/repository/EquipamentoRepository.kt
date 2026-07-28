@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.map
 
 class EquipamentoRepository(private val dao: EquipamentoDao) {
 
+    fun getAllEquipamentos(): Flow<List<Equipamento>> =
+        dao.getAllEquipamentos().map { list -> list.map { it.toDomain() } }
+
     fun getEquipamentosByOrcamentoId(orcamentoId: Long): Flow<List<Equipamento>> =
         dao.getEquipamentosByOrcamentoId(orcamentoId).map { list -> list.map { it.toDomain() } }
 

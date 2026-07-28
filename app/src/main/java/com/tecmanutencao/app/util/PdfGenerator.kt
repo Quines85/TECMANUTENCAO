@@ -149,7 +149,7 @@ object PdfGenerator {
         val dateWidth = datePaint.measureText(dateText)
         canvas.drawText(dateText, PAGE_WIDTH - MARGIN - dateWidth, y + 50f, datePaint)
 
-        return y + 95f + 10f
+        return y + headerHeight + 25f
     }
 
     private fun drawSectionTitle(canvas: Canvas, title: String, startY: Float): Float {
