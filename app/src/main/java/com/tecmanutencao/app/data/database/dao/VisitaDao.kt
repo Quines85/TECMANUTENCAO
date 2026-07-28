@@ -27,6 +27,9 @@ interface VisitaDao {
     @Query("SELECT COUNT(*) FROM visitas WHERE data BETWEEN :startDate AND :endDate")
     suspend fun getVisitaCountBetween(startDate: Long, endDate: Long): Int
 
+    @Query("SELECT COUNT(*) FROM visitas WHERE data BETWEEN :startDate AND :endDate AND status = 'FINALIZADA'")
+    suspend fun getVisitaFinalizadaCountBetween(startDate: Long, endDate: Long): Int
+
     @Query("SELECT COALESCE(SUM(valor), 0) FROM visitas WHERE data BETWEEN :startDate AND :endDate AND status = 'FINALIZADA'")
     suspend fun getVisitaProfitBetween(startDate: Long, endDate: Long): Double
 

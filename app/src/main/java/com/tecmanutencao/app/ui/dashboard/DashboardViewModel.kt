@@ -85,7 +85,7 @@ class DashboardViewModel(
 
                     val orcTotal = orcamentoRepository.getOrcamentoCountBetween(monthStart, monthEnd)
                     val orcFinalizados = orcamentoRepository.getFinalizedOrcamentoCountBetween(monthStart, monthEnd)
-                    val visitas = visitaRepository.getVisitaCountBetween(monthStart, monthEnd)
+                    val visitasFinalizadasCount = visitaRepository.getVisitaFinalizadaCountBetween(monthStart, monthEnd)
                     val novosClientes = clienteRepository.getNewClientCountBetween(monthStart, monthEnd)
                     val lucroOrcamentos = orcamentoRepository.getOrcamentoProfitBetween(monthStart, monthEnd)
                     val lucroVisitas = visitaRepository.getVisitaProfitBetween(monthStart, monthEnd)
@@ -96,7 +96,7 @@ class DashboardViewModel(
                             monthShort = monthShort[cal.get(Calendar.MONTH)],
                             orcamentosTotal = orcTotal,
                             orcamentosFinalizados = orcFinalizados,
-                            visitasFinalizadas = visitas,
+                            visitasFinalizadas = visitasFinalizadasCount,
                             novosClientes = novosClientes,
                             lucroTotal = lucroOrcamentos + lucroVisitas
                         )

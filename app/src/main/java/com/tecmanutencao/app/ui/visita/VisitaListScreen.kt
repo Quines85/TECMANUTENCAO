@@ -4,23 +4,29 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -161,16 +167,27 @@ private fun VisitaCard(visita: Visita, onClick: () -> Unit) {
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
-                    Text(
-                        text = " [${visita.status.descricao}]",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
+                    Spacer(Modifier.width(6.dp))
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
                         color = when (visita.status) {
-                            StatusVisita.FINALIZADA -> MaterialTheme.colorScheme.primary
-                            StatusVisita.EM_ANDAMENTO -> MaterialTheme.colorScheme.tertiary
-                            StatusVisita.AGENDADA -> MaterialTheme.colorScheme.secondary
+                            StatusVisita.FINALIZADA -> MaterialTheme.colorScheme.primaryContainer
+                            StatusVisita.EM_ANDAMENTO -> MaterialTheme.colorScheme.tertiaryContainer
+                            StatusVisita.AGENDADA -> MaterialTheme.colorScheme.secondaryContainer
                         }
-                    )
+                    ) {
+                        Text(
+                            text = visita.status.descricao,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            color = when (visita.status) {
+                                StatusVisita.FINALIZADA -> MaterialTheme.colorScheme.onPrimaryContainer
+                                StatusVisita.EM_ANDAMENTO -> MaterialTheme.colorScheme.onTertiaryContainer
+                                StatusVisita.AGENDADA -> MaterialTheme.colorScheme.onSecondaryContainer
+                            }
+                        )
+                    }
                 }
                 Text(
                     text = "Data: ${DateUtils.formatDate(visita.data)}",

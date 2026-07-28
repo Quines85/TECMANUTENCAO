@@ -24,6 +24,9 @@ class VisitaRepository(private val dao: VisitaDao) {
     suspend fun getVisitaCountBetween(startDate: Long, endDate: Long): Int =
         dao.getVisitaCountBetween(startDate, endDate)
 
+    suspend fun getVisitaFinalizadaCountBetween(startDate: Long, endDate: Long): Int =
+        dao.getVisitaFinalizadaCountBetween(startDate, endDate)
+
     suspend fun getVisitaProfitBetween(startDate: Long, endDate: Long): Double =
         dao.getVisitaProfitBetween(startDate, endDate)
 
