@@ -129,6 +129,18 @@ class ClienteViewModel(
         }
     }
 
+    fun deleteCliente(cliente: Cliente) {
+        viewModelScope.launch {
+            try {
+                repository.deleteCliente(cliente)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Erro ao excluir: ${e.message}"
+                )
+            }
+        }
+    }
+
     fun resetSaveSuccess() {
         _uiState.value = _uiState.value.copy(saveSuccess = false)
     }

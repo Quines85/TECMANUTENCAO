@@ -2,7 +2,9 @@ package com.tecmanutencao.app.ui.cliente
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,10 +14,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -28,12 +32,16 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tecmanutencao.app.domain.model.Cliente
+import com.tecmanutencao.app.ui.components.ConfirmDialog
 import com.tecmanutencao.app.ui.components.EmptyState
 import com.tecmanutencao.app.ui.components.SearchBar
 
@@ -48,6 +56,20 @@ fun ClienteListScreen(
     ))
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var clienteToDelete by remember { mutableStateOf<Cliente?>(null) }
+
+    if (clienteToDelete != null) {
+        ConfirmDialog(
+            title = "Excluir Cliente",
+            message = "Tem certeza que deseja excluir ${clienteToDelete?.nomeCompleto}?",
+            confirmText = "Excluir",
+            onConfirm = {
+                clienteToDelete?.let { viewModel.deleteCliente(it) }
+                clienteToDelete = null
+            },
+            onDismiss = { clienteToDelete = null }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -86,11 +108,11 @@ fun ClienteListScreen(
             )
 
             if (uiState.isLoading) {
-                androidx.compose.foundation.layout.Box(
+                Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    androidx.compose.material3.CircularProgressIndicator()
+                    CircularProgressIndicator()
                 }
             } else if (uiState.clientes.isEmpty()) {
                 EmptyState(message = "Nenhum cliente encontrado")
@@ -98,12 +120,13 @@ fun ClienteListScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp)
+                    contentPadding = PaddingValues(16.dp)
                 ) {
                     items(uiState.clientes, key = { it.id }) { cliente ->
                         ClienteCard(
                             cliente = cliente,
-                            onClick = { onNavigateToForm(cliente.id) }
+                            onClick = { onNavigateToForm(cliente.id) },
+                            onDelete = { clienteToDelete = cliente }
                         )
                     }
                 }
@@ -113,9 +136,8 @@ fun ClienteListScreen(
 }
 
 @Composable
-private fun ClienteCard(cliente: Cliente, onClick: () -> Unit) {
+private fun ClienteCard(cliente: Cliente, onClick: () -> Unit, onDelete: () -> Unit) {
     Card(
-        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -125,7 +147,8 @@ private fun ClienteCard(cliente: Cliente, onClick: () -> Unit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .clickable(onClick = onClick)
+                .padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -159,6 +182,13 @@ private fun ClienteCard(cliente: Cliente, onClick: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+            }
+            IconButton(onClick = onDelete) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Excluir",
+                    tint = MaterialTheme.colorScheme.error
+                )
             }
         }
     }

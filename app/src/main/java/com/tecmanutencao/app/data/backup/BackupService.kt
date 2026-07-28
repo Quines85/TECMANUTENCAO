@@ -29,7 +29,7 @@ import java.io.InputStreamReader
 
 object BackupService {
 
-    private const val BACKUP_VERSION = 2
+    private const val BACKUP_VERSION = 3
 
     data class BackupData(
         val empresaConfig: EmpresaConfig?,
@@ -129,44 +129,54 @@ object BackupService {
                 imported++
             }
 
+            val hasIds = version >= 3
             val clienteIdMap = mutableMapOf<Long, Long>()
             for (cliente in data.clientes) {
+                val oldId = cliente.id
                 val newId = clienteRepo.saveCliente(cliente.copy(id = 0))
-                clienteIdMap[cliente.id] = newId
+                if (hasIds) clienteIdMap[oldId] = newId
                 imported++
             }
 
             val orcamentoIdMap = mutableMapOf<Long, Long>()
             val orcamentosToUpdate = mutableListOf<Pair<Long, Long>>()
             for (orcamento in data.orcamentos) {
+                val oldId = orcamento.id
+                val adjustedClienteId = if (hasIds) clienteIdMap[orcamento.clienteId] ?: 0 else 0
                 val adjustedOrcamento = orcamento.copy(
                     id = 0,
-                    clienteId = clienteIdMap[orcamento.clienteId] ?: 0
+                    clienteId = adjustedClienteId
                 )
                 val newId = orcamentoRepo.saveOrcamento(adjustedOrcamento)
-                orcamentoIdMap[orcamento.id] = newId
-                if (orcamento.equipamentoId > 0) {
-                    orcamentosToUpdate.add(newId to orcamento.equipamentoId)
+                if (hasIds) {
+                    orcamentoIdMap[oldId] = newId
+                    if (orcamento.equipamentoId > 0) {
+                        orcamentosToUpdate.add(newId to orcamento.equipamentoId)
+                    }
                 }
                 imported++
             }
 
             val equipamentoIdMap = mutableMapOf<Long, Long>()
             for (equipamento in data.equipamentos) {
+                val oldId = equipamento.id
+                val adjustedOrcamentoId = if (hasIds) orcamentoIdMap[equipamento.orcamentoId] ?: 0 else 0
                 val newId = equipamentoRepo.saveEquipamento(equipamento.copy(
                     id = 0,
-                    orcamentoId = orcamentoIdMap[equipamento.orcamentoId] ?: 0
+                    orcamentoId = adjustedOrcamentoId
                 ))
-                equipamentoIdMap[equipamento.id] = newId
+                if (hasIds) equipamentoIdMap[oldId] = newId
                 imported++
             }
 
-            for ((newOrcamentoId, oldEquipamentoId) in orcamentosToUpdate) {
-                val newEquipamentoId = equipamentoIdMap[oldEquipamentoId]
-                if (newEquipamentoId != null) {
-                    val existing = orcamentoRepo.getOrcamentoById(newOrcamentoId)
-                    if (existing != null) {
-                        orcamentoRepo.updateOrcamento(existing.copy(equipamentoId = newEquipamentoId))
+            if (hasIds) {
+                for ((newOrcamentoId, oldEquipamentoId) in orcamentosToUpdate) {
+                    val newEquipamentoId = equipamentoIdMap[oldEquipamentoId]
+                    if (newEquipamentoId != null) {
+                        val existing = orcamentoRepo.getOrcamentoById(newOrcamentoId)
+                        if (existing != null) {
+                            orcamentoRepo.updateOrcamento(existing.copy(equipamentoId = newEquipamentoId))
+                        }
                     }
                 }
             }
@@ -260,6 +270,7 @@ object BackupService {
     }
 
     private fun Cliente.toJson() = JSONObject().apply {
+        put("id", id)
         put("nomeCompleto", nomeCompleto)
         put("cpfCnpj", cpfCnpj)
         put("telefone", telefone)
@@ -274,6 +285,7 @@ object BackupService {
     }
 
     private fun Orcamento.toJson() = JSONObject().apply {
+        put("id", id)
         put("numeroOrcamento", numeroOrcamento)
         put("data", data)
         put("clienteId", clienteId)
@@ -286,6 +298,7 @@ object BackupService {
     }
 
     private fun Equipamento.toJson() = JSONObject().apply {
+        put("id", id)
         put("tipoMaquina", tipoMaquina.name)
         put("marca", marca)
         put("modelo", modelo)
@@ -296,6 +309,7 @@ object BackupService {
     }
 
     private fun Visita.toJson() = JSONObject().apply {
+        put("id", id)
         put("data", data)
         put("nomeCliente", nomeCliente)
         put("endereco", endereco)
@@ -320,6 +334,7 @@ object BackupService {
     }
 
     private fun clienteFromJson(obj: JSONObject) = Cliente(
+        id = obj.optLong("id", 0),
         nomeCompleto = obj.optString("nomeCompleto", ""),
         cpfCnpj = obj.optString("cpfCnpj", ""),
         telefone = obj.optString("telefone", ""),
@@ -334,6 +349,7 @@ object BackupService {
     )
 
     private fun orcamentoFromJson(obj: JSONObject) = Orcamento(
+        id = obj.optLong("id", 0),
         numeroOrcamento = obj.optString("numeroOrcamento", ""),
         data = obj.optLong("data", System.currentTimeMillis()),
         clienteId = obj.optLong("clienteId", 0),
@@ -346,6 +362,7 @@ object BackupService {
     )
 
     private fun equipamentoFromJson(obj: JSONObject) = Equipamento(
+        id = obj.optLong("id", 0),
         tipoMaquina = try { TipoMaquina.valueOf(obj.optString("tipoMaquina", "")) } catch (e: Exception) { TipoMaquina.DESKTOP },
         marca = obj.optString("marca", ""),
         modelo = obj.optString("modelo", ""),
@@ -356,6 +373,7 @@ object BackupService {
     )
 
     private fun visitaFromJson(obj: JSONObject) = Visita(
+        id = obj.optLong("id", 0),
         data = obj.optLong("data", System.currentTimeMillis()),
         nomeCliente = obj.optString("nomeCliente", ""),
         endereco = obj.optString("endereco", ""),
